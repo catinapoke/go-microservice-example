@@ -4,16 +4,18 @@ import (
 	"context"
 	"errors"
 	"log"
+
+	"github.com/catinapoke/go-microservice-example/internal/domain"
 )
 
 type Handler struct {
-	// Model *domain.Model
+	Model *domain.Model
 }
 
 type Response struct {
-	Id         int  `json:"id"`
-	CampaignId int  `json:"campaignId"`
-	Removed    bool `json:"removed"` // true
+	Id        int  `json:"id"`
+	ProjectId int  `json:"projectId"` // TODO: Check if it's really campaignId
+	Removed   bool `json:"removed"`   // true
 }
 
 type Request struct {
@@ -32,6 +34,10 @@ func (r Request) Validate() error {
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
 	log.Printf("%+v", r)
 
-	// err := h.Model.AddToCart(ctx, req.User, req.SKU, req.Count)
-	return Response{}, nil
+	err := h.Model.Remove(ctx, r.Id, r.ProjectId)
+	return Response{
+		Id:        r.Id,
+		ProjectId: r.ProjectId,
+		Removed:   true,
+	}, err
 }

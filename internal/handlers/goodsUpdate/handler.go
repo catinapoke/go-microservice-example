@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	// Model *domain.Model
+	Model *domain.Model
 }
 
 type Response struct {
@@ -17,10 +17,10 @@ type Response struct {
 }
 
 type Request struct {
-	Id          int `path:"id"`
-	ProjectId   int `path:"projectId"`
-	Name        int `query:"name"`
-	Description int `query:"description"`
+	Id          int    `path:"id"`
+	ProjectId   int    `path:"projectId"`
+	Name        string `query:"name"`
+	Description string `query:"description"`
 }
 
 var (
@@ -28,12 +28,16 @@ var (
 )
 
 func (r Request) Validate() error {
+	if r.Name == "" {
+		return ErrWrongInput
+	}
+
 	return nil
 }
 
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
 	log.Printf("%+v", r)
 
-	// err := h.Model.AddToCart(ctx, req.User, req.SKU, req.Count)
-	return Response{}, nil
+	item, err := h.Model.Update(ctx, r.Id, r.ProjectId, r.Name, r.Description)
+	return Response{item}, err
 }

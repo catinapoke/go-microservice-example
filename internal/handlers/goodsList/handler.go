@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	// Model *domain.Model
+	Model *domain.Model
 }
 
 type Response struct {
@@ -48,6 +48,15 @@ func (r Request) Validate() error {
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
 	log.Printf("%+v", r)
 
-	// err := h.Model.AddToCart(ctx, req.User, req.SKU, req.Count)
-	return Response{Goods: make([]domain.Item, 0)}, nil
+	// Update default values
+	if r.Limit == 0 {
+		r.Limit = 10
+	}
+
+	if r.Offset == 0 {
+		r.Offset = 1
+	}
+
+	items, err := h.Model.List(ctx, r.Limit, r.Offset)
+	return Response{Goods: items}, err
 }

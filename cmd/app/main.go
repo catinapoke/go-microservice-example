@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/catinapoke/go-microservice-example/internal/domain"
 	"github.com/catinapoke/go-microservice-example/internal/handlers/errorshandler"
 	goodscreate "github.com/catinapoke/go-microservice-example/internal/handlers/goodsCreate"
 	goodsremove "github.com/catinapoke/go-microservice-example/internal/handlers/goodsRemove"
@@ -15,11 +16,13 @@ import (
 const port = ":8080"
 
 func main() {
-	creator := goodscreate.Handler{}
-	updater := goodsupdate.Handler{}
-	remover := goodsremove.Handler{}
-	listing := goodslist.Handler{}
-	prioritizer := goodsreprioritize.Handler{}
+	model := domain.New()
+
+	creator := goodscreate.Handler{Model: model}
+	updater := goodsupdate.Handler{Model: model}
+	remover := goodsremove.Handler{Model: model}
+	listing := goodslist.Handler{Model: model}
+	prioritizer := goodsreprioritize.Handler{Model: model}
 
 	e := echo.New()
 

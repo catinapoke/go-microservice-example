@@ -30,7 +30,7 @@ type GoodsRemover interface {
 }
 
 type GoodsListing interface {
-	List(limit int, offset string) ([]Item, error)
+	List(limit int, offset int) ([]Item, error)
 }
 
 type GoodsPrioritizer interface {
@@ -38,19 +38,9 @@ type GoodsPrioritizer interface {
 }
 
 type Model struct {
-	creator     GoodsCreator
-	updater     GoodsUpdater
-	remover     GoodsRemover
-	listing     GoodsListing
-	prioritizer GoodsPrioritizer
 }
 
-func New(creator GoodsCreator, updater GoodsUpdater, remover GoodsRemover, listing GoodsListing, prioritizer GoodsPrioritizer) *Model {
+func New() *Model {
 	return &Model{
-		creator:     creator,
-		updater:     updater,
-		remover:     remover,
-		listing:     listing,
-		prioritizer: prioritizer,
 	}
 }

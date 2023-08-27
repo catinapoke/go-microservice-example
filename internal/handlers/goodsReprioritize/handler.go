@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	// Model *domain.Model
+	Model *domain.Model
 }
 
 type Response struct {
@@ -19,7 +19,7 @@ type Response struct {
 type Request struct {
 	Id        int `path:"id"`
 	ProjectId int `path:"projectId"`
-	Priority  int `query:"newPriority"`
+	Priority  int `query:"newPriority"` // TODO: check args passing
 }
 
 var (
@@ -27,12 +27,16 @@ var (
 )
 
 func (r Request) Validate() error {
+	if r.Priority < 1 {
+		return ErrWrongInput
+	}
+
 	return nil
 }
 
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
 	log.Printf("%+v", r)
 
-	// err := h.Model.AddToCart(ctx, req.User, req.SKU, req.Count)
-	return Response{}, nil
+	priorities, err := h.Model.UpdatePriority(ctx, r.Id, r.ProjectId, r.Priority)
+	return Response{Priorities: priorities}, err
 }
