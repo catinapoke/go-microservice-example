@@ -17,8 +17,8 @@ type Response struct {
 }
 
 type Request struct {
-	ProjectId int    `path:"projectId"`
-	Name      string `query:"name"`
+	ProjectId int    `query:"projectId"`
+	Name      string `json:"name"`
 }
 
 var (

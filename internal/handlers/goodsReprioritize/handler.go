@@ -17,9 +17,9 @@ type Response struct {
 }
 
 type Request struct {
-	Id        int `path:"id"`
-	ProjectId int `path:"projectId"`
-	Priority  int `query:"newPriority"` // TODO: check args passing
+	Id        int `query:"id"`
+	ProjectId int `query:"projectId"`
+	Priority  int `json:"newPriority"` // TODO: check args passing
 }
 
 var (

@@ -25,15 +25,23 @@ func New[Req Validator, Res any](fn func(ctx context.Context, req Req) (Res, err
 func (w *Wrapper[Req, Res]) ServeHTTP(c echo.Context) error {
 	var req Req
 
-	err := c.Bind(&req)
-	if err != nil {
+	if err := c.Bind(&req); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
+	}
+
+	// Avoid restriction of binding Query parameters (only for GET/DELETE methods)
+	methodName := c.Request().Method
+	if methodName != "GET" && methodName != "DELETE" {
+		if err := (&echo.DefaultBinder{}).BindQueryParams(c, &req); err != nil {
+			return err
+		}
 	}
 
 	reqValidation, ok := any(req).(Validator)
 	if ok {
 		errValidation := reqValidation.Validate()
 		if errValidation != nil {
+			c.Logger().Errorf("validation error: %+v", req)
 			return c.String(http.StatusBadRequest, "bad request")
 		}
 	}

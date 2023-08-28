@@ -18,8 +18,8 @@ type Response struct {
 }
 
 type Request struct {
-	Limit  int `path:"limit"`
-	Offset int `path:"offset"`
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
 }
 
 type MetaResponse struct {
