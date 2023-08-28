@@ -42,7 +42,7 @@ func (r *Repository) CreateItem(ctx context.Context, projectId int, name string)
 	}
 
 	// Get last id and priority
-	id := -1
+	id := 0
 	priority := 0
 
 	for _, item := range r.items {
@@ -73,7 +73,7 @@ func (r *Repository) CreateItem(ctx context.Context, projectId int, name string)
 	return &item, nil
 }
 
-func (r *Repository) GetItem(ctx context.Context, id int) (*repository.GoodsItem, error) {
+func (r *Repository) GetItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error) {
 	index := r.getItemIndex(func(x repository.GoodsItem) bool { return x.Id == id })
 
 	if index == -1 {

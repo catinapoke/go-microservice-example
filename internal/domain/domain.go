@@ -28,7 +28,7 @@ type TransactionManager interface {
 
 type GoodsRepository interface {
 	CreateItem(ctx context.Context, projectId int, name string) (*repository.GoodsItem, error)
-	GetItem(ctx context.Context, id int) (*repository.GoodsItem, error)
+	GetItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error)
 	UpdateItem(ctx context.Context, id int, projectId int, name string, description string) (*repository.GoodsItem, error)
 	DeleteItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error)
 	ListItems(ctx context.Context, limit int, offset int) ([]repository.GoodsItem, error)

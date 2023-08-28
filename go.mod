@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/georgysavva/scany v1.2.1
 	github.com/jackc/pgconn v1.14.1
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/labstack/echo v3.3.10+incompatible

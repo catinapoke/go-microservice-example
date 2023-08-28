@@ -5,23 +5,23 @@ import (
 )
 
 type GoodsItem struct {
-	Id          int       `json:"id"`
-	ProjectId   int       `json:"projectId"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Priority    int       `json:"priority"`
-	Removed     bool      `json:"removed"`
-	CreatedAt   time.Time `json:"createdAt"`
+	Id          int       `db:"id"`
+	ProjectId   int       `db:"projectId"`
+	Name        string    `db:"name"`
+	Description string    `db:"description"`
+	Priority    int       `db:"priority"`
+	Removed     bool      `db:"removed"`
+	CreatedAt   time.Time `db:"createdAt"`
 }
 
 type ProjectItem struct {
-	Id        int       `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
+	Id        int       `db:"id"`
+	Name      string    `db:"name"`
+	CreatedAt time.Time `db:"createdAt"`
 }
 
 type GoodsPriority struct {
-	Id        int `json:"id"`
-	ProjectId int `json:"projectId"`
-	Priority  int `json:"priority"`
+	Id        int `db:"id"`
+	ProjectId int `db:"projectId"`
+	Priority  int `db:"priority"`
 }

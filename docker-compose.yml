@@ -1,7 +1,42 @@
 version: "3.1"
+networks:
+  c-net:
+    driver: bridge
+
 services:
-  checkout:
+  goods:
     image: goods
     build: ./
     ports:
       - "8080:8080"
+    networks:
+      - c-net
+    depends_on:
+      - postgresql
+
+  postgresql:
+    image: postgres:15.1
+    environment:
+      POSTGRES_DB: example
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    container_name: 'pg_checkout'
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d example"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - c-net
