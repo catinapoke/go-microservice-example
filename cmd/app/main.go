@@ -8,15 +8,19 @@ import (
 	goodsreprioritize "github.com/catinapoke/go-microservice-example/internal/handlers/goodsReprioritize"
 	goodsupdate "github.com/catinapoke/go-microservice-example/internal/handlers/goodsUpdate"
 	"github.com/catinapoke/go-microservice-example/internal/handlers/goodslist"
+	"github.com/catinapoke/go-microservice-example/internal/repository/localgoods"
 	srvwrapper "github.com/catinapoke/go-microservice-example/utils/srwwrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 const port = ":8080"
 
 func main() {
-	model := domain.New()
+
+	repo := localgoods.New()
+	model := domain.New(repo)
 
 	creator := goodscreate.Handler{Model: model}
 	updater := goodsupdate.Handler{Model: model}
@@ -25,6 +29,8 @@ func main() {
 	prioritizer := goodsreprioritize.Handler{Model: model}
 
 	e := echo.New()
+
+	e.Logger.SetLevel(log.INFO)
 
 	e.POST("/good/create", srvwrapper.New(creator.Handle).ServeHTTP)
 	e.PATCH("/good/update", srvwrapper.New(updater.Handle).ServeHTTP)

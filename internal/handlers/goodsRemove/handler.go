@@ -3,7 +3,6 @@ package goodsremove
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/catinapoke/go-microservice-example/internal/domain"
 )
@@ -14,8 +13,8 @@ type Handler struct {
 
 type Response struct {
 	Id        int  `json:"id"`
-	ProjectId int  `json:"projectId"` // TODO: Check if it's really campaignId
-	Removed   bool `json:"removed"`   // true
+	ProjectId int  `json:"projectId"`
+	Removed   bool `json:"removed"`
 }
 
 type Request struct {
@@ -32,12 +31,15 @@ func (r Request) Validate() error {
 }
 
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
-	log.Printf("%+v", r)
+	item, err := h.Model.Remove(ctx, r.Id, r.ProjectId)
 
-	err := h.Model.Remove(ctx, r.Id, r.ProjectId)
+	if err != nil {
+		return Response{}, nil
+	}
+
 	return Response{
-		Id:        r.Id,
-		ProjectId: r.ProjectId,
-		Removed:   true,
-	}, err
+		Id:        item.Id,
+		ProjectId: item.ProjectId,
+		Removed:   item.Removed,
+	}, nil
 }

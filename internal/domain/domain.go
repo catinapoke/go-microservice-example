@@ -1,6 +1,11 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"github.com/catinapoke/go-microservice-example/internal/repository"
+)
 
 type Item struct {
 	Id          int       `json:"id"`
@@ -17,30 +22,42 @@ type ItemPriority struct {
 	Priority int `json:"priority"`
 }
 
-type GoodsCreator interface {
-	Create(projectId int, name string) (Item, error)
+type TransactionManager interface {
+	RunRepeatableRead(ctx context.Context, fn func(ctxTx context.Context) error) error
 }
 
-type GoodsUpdater interface {
-	Update(id int, projectId int, name string, description string) (Item, error)
-}
-
-type GoodsRemover interface {
-	Remove(id int, projectId int) error
-}
-
-type GoodsListing interface {
-	List(limit int, offset int) ([]Item, error)
-}
-
-type GoodsPrioritizer interface {
-	UpdatePriority(id int, projectId int, newPriority int) ([]ItemPriority, error)
+type GoodsRepository interface {
+	CreateItem(ctx context.Context, projectId int, name string) (*repository.GoodsItem, error)
+	GetItem(ctx context.Context, id int) (*repository.GoodsItem, error)
+	UpdateItem(ctx context.Context, id int, projectId int, name string, description string) (*repository.GoodsItem, error)
+	DeleteItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error)
+	ListItems(ctx context.Context, limit int, offset int) ([]repository.GoodsItem, error)
+	Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsPriority, error)
 }
 
 type Model struct {
+	repo GoodsRepository
 }
 
-func New() *Model {
-	return &Model{
+func New(repository GoodsRepository) *Model {
+	return &Model{repo: repository}
+}
+
+func mapRepoItemToModel(x repository.GoodsItem) Item {
+	return Item{
+		Id:          x.Id,
+		ProjectId:   x.ProjectId,
+		Name:        x.Name,
+		Description: x.Description,
+		Priority:    x.Priority,
+		Removed:     x.Removed,
+		CreatedAt:   x.CreatedAt,
+	}
+}
+
+func mapRepoPriorityToModel(x repository.GoodsPriority) ItemPriority {
+	return ItemPriority{
+		Id:       x.Id,
+		Priority: x.Priority,
 	}
 }

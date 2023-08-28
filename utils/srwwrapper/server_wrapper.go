@@ -29,6 +29,8 @@ func (w *Wrapper[Req, Res]) ServeHTTP(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
+	c.Logger().Infof("got request '%s' with data: %+v", c.Path(), req)
+
 	// Avoid restriction of binding Query parameters (only for GET/DELETE methods)
 	methodName := c.Request().Method
 	if methodName != "GET" && methodName != "DELETE" {

@@ -3,7 +3,6 @@ package goodsreprioritiize
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/catinapoke/go-microservice-example/internal/domain"
 )
@@ -35,8 +34,6 @@ func (r Request) Validate() error {
 }
 
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
-	log.Printf("%+v", r)
-
 	priorities, err := h.Model.UpdatePriority(ctx, r.Id, r.ProjectId, r.Priority)
 	return Response{Priorities: priorities}, err
 }

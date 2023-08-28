@@ -3,7 +3,6 @@ package goodslist
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/catinapoke/go-microservice-example/internal/domain"
 )
@@ -46,8 +45,6 @@ func (r Request) Validate() error {
 }
 
 func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
-	log.Printf("%+v", r)
-
 	// Update default values
 	if r.Limit == 0 {
 		r.Limit = 10
@@ -58,5 +55,19 @@ func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
 	}
 
 	items, err := h.Model.List(ctx, r.Limit, r.Offset)
-	return Response{Goods: items}, err
+
+	meta := MetaResponse{
+		Limit:   r.Limit,
+		Offset:  r.Offset,
+		Removed: 0,
+		Total:   len(items),
+	}
+
+	for _, item := range items {
+		if item.Removed {
+			meta.Removed++
+		}
+	}
+
+	return Response{Meta: meta, Goods: items}, err
 }
