@@ -11,7 +11,7 @@ CREATE TABLE Goods (
 ) ENGINE = NATS
 	SETTINGS nats_url = 'nats:4222',
 		nats_subjects = 'GoodsLogs',
-		nats_format = 'JSON';
+		nats_format = 'JSONEachRow';
 -- +goose StatementEnd
 -- 
 

@@ -2,9 +2,11 @@ package srvwrapper
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 
+	"github.com/catinapoke/go-microservice-example/utils/serviceerrors"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,7 +28,7 @@ func (w *Wrapper[Req, Res]) ServeHTTP(c echo.Context) error {
 	var req Req
 
 	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusBadRequest, "bad request")
+		return c.String(http.StatusBadRequest, serviceerrors.ErrValidation.Json())
 	}
 
 	c.Logger().Infof("got request '%s' with data: %+v", c.Path(), req)
@@ -44,13 +46,19 @@ func (w *Wrapper[Req, Res]) ServeHTTP(c echo.Context) error {
 		errValidation := reqValidation.Validate()
 		if errValidation != nil {
 			c.Logger().Errorf("validation error: %+v", req)
-			return c.String(http.StatusBadRequest, "bad request")
+			return c.String(http.StatusBadRequest, serviceerrors.ErrValidation.Json())
 		}
 	}
 
 	resp, err := w.fn(c.Request().Context(), req)
 	if err != nil {
 		log.Printf("executor fail: %s", err)
+
+		var data serviceerrors.ErrorMessage
+		if errors.As(err, &data) {
+			return c.String(http.StatusInternalServerError, data.Json())
+		}
+
 		return c.String(http.StatusInternalServerError, "exec handler")
 	}
 

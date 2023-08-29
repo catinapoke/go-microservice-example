@@ -34,7 +34,7 @@ func (h *Handler) Handle(ctx context.Context, r Request) (Response, error) {
 	item, err := h.Model.Remove(ctx, r.Id, r.ProjectId)
 
 	if err != nil {
-		return Response{}, nil
+		return Response{}, err
 	}
 
 	return Response{

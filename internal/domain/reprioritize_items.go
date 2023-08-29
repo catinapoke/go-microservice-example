@@ -1,9 +1,18 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/catinapoke/go-microservice-example/internal/repository"
+)
 
 func (m *Model) UpdatePriority(ctx context.Context, id int, projectId int, newPriority int) ([]ItemPriority, error) {
-	items, err := m.repo.Reprioritize(ctx, id, projectId, newPriority)
+	var items []repository.GoodsItem
+	err := m.txm.RunRepeatableRead(ctx, func(ctxTx context.Context) error {
+		var err error
+		items, err = m.repo.Reprioritize(ctx, id, projectId, newPriority)
+		return err
+	})
 
 	if err != nil {
 		return nil, err

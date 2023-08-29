@@ -3,14 +3,9 @@ package errorshandler
 import (
 	"net/http"
 
+	"github.com/catinapoke/go-microservice-example/utils/serviceerrors"
 	"github.com/labstack/echo/v4"
 )
-
-type ErrorMessage struct {
-	Code    int      `json:"code"`
-	Message string   `json:"message"`
-	Details struct{} `json:"details"`
-}
 
 func HandleError(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -21,7 +16,7 @@ func HandleError(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			method := c.Request().Method
 			if method == "PATCH" || method == "DELETE" {
-				return echo.NewHTTPError(http.StatusNotFound, ErrorMessage{
+				return echo.NewHTTPError(http.StatusNotFound, serviceerrors.ErrorMessage{
 					Code:    3,
 					Message: "errors.good.notFound",
 				})

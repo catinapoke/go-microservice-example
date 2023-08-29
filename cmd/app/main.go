@@ -76,7 +76,7 @@ func main() {
 	natsClient := natslogs.New(conn, rds)
 
 	// Service
-	model := domain.New(natsClient)
+	model := domain.New(natsClient, provider)
 
 	creator := goodscreate.Handler{Model: model}
 	updater := goodsupdate.Handler{Model: model}
@@ -97,8 +97,8 @@ func main() {
 
 	// Root level middleware
 	e.Use(middleware.Recover())
-	e.Use(errorshandler.HandleError)
 	e.Use(middleware.Logger())
+	e.Use(errorshandler.HandleError)
 
 	e.Logger.Fatal(e.Start(Port))
 }

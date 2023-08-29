@@ -37,10 +37,11 @@ type GoodsRepository interface {
 
 type Model struct {
 	repo GoodsRepository
+	txm  TransactionManager
 }
 
-func New(repository GoodsRepository) *Model {
-	return &Model{repo: repository}
+func New(repository GoodsRepository, tx TransactionManager) *Model {
+	return &Model{repo: repository, txm: tx}
 }
 
 func mapRepoItemToModel(x repository.GoodsItem) Item {
