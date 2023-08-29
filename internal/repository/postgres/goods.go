@@ -16,11 +16,6 @@ type Repository struct {
 	provider tx.DBProvider
 }
 
-const (
-	GoodsTableName    = "Goods"
-	ProjectsTableName = "Projects"
-)
-
 func New(provider tx.DBProvider) *Repository {
 	return &Repository{provider: provider}
 }

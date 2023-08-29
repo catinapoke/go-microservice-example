@@ -2,9 +2,9 @@ package goodscreate
 
 import (
 	"context"
-	"errors"
 
 	"github.com/catinapoke/go-microservice-example/internal/domain"
+	"github.com/catinapoke/go-microservice-example/utils/serviceerrors"
 )
 
 type Handler struct {
@@ -20,13 +20,9 @@ type Request struct {
 	Name      string `json:"name"`
 }
 
-var (
-	ErrWrongInput = errors.New("wrong input")
-)
-
 func (r Request) Validate() error {
 	if r.Name == "" {
-		return ErrWrongInput
+		return serviceerrors.ErrValidation
 	}
 
 	return nil

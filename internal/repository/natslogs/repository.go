@@ -12,8 +12,9 @@ import (
 )
 
 type Repository struct {
-	conn *nats.Conn
-	next domain.GoodsRepository
+	conn    *nats.Conn
+	next    domain.GoodsRepository
+	subject string
 }
 
 type LogMessage struct {
@@ -26,14 +27,11 @@ type LogMessage struct {
 	EventTime   time.Time `json:"EventTime"`
 }
 
-const (
-	Subject = "GoodsLogs"
-)
-
-func New(conn *nats.Conn, repo domain.GoodsRepository) *Repository {
+func New(conn *nats.Conn, repo domain.GoodsRepository, subject string) *Repository {
 	return &Repository{
-		conn: conn,
-		next: repo,
+		conn:    conn,
+		next:    repo,
+		subject: subject,
 	}
 }
 
@@ -101,7 +99,7 @@ func (r *Repository) publish(item *repository.GoodsItem) error {
 		return err
 	}
 
-	err = r.conn.Publish(Subject, data)
+	err = r.conn.Publish(r.subject, data)
 
 	return err
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/catinapoke/go-microservice-example/internal/config"
 	"github.com/catinapoke/go-microservice-example/internal/domain"
-	"github.com/catinapoke/go-microservice-example/internal/handlers/errorshandler"
 	goodscreate "github.com/catinapoke/go-microservice-example/internal/handlers/goodsCreate"
 	goodslist "github.com/catinapoke/go-microservice-example/internal/handlers/goodsList"
 	goodsremove "github.com/catinapoke/go-microservice-example/internal/handlers/goodsRemove"
@@ -25,22 +25,21 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const (
-	Port        = ":8080"
-	DatabaseUrl = "postgres://user:password@postgresql:5432/example?sslmode=disable"
-	RedisUrl    = "redis://default:@redis:6379/0"
-	NatsUrl     = "nats://nats:4222"
-)
-
 var (
 	Log echo.Logger
 )
 
 func main() {
+	err := config.Init()
+
+	if err != nil {
+		log.Fatal(fmt.Errorf("can't unmarshal config: %w", err))
+	}
+
 	// Database
 	ctx := context.Background()
 
-	pool, err := pgxpool.Connect(ctx, DatabaseUrl)
+	pool, err := pgxpool.Connect(ctx, config.AppConfig.PostgresUrl)
 	if err != nil {
 		log.Fatal(fmt.Errorf("connect to db: %w", err))
 	}
@@ -50,7 +49,7 @@ func main() {
 	repo := postgres.New(provider)
 
 	// Redis
-	opt, err := redis.ParseURL(RedisUrl)
+	opt, err := redis.ParseURL(config.AppConfig.Redis.Url)
 	if err != nil {
 		log.Fatal(fmt.Errorf("connect to redis: %w", err))
 	}
@@ -64,16 +63,16 @@ func main() {
 		log.Fatal(fmt.Errorf("ping redis: %w", err))
 	}
 
-	rds := rediscache.New(client, repo)
+	rds := rediscache.New(client, repo, config.AppConfig.Redis.Key)
 
 	// Nats
-	conn, err := nats.Connect(NatsUrl)
+	conn, err := nats.Connect(config.AppConfig.Nats.Url)
 	if err != nil {
 		log.Fatal(fmt.Errorf("connect to nats: %w", err))
 	}
 	defer conn.Close()
 
-	natsClient := natslogs.New(conn, rds)
+	natsClient := natslogs.New(conn, rds, config.AppConfig.Nats.Subject)
 
 	// Service
 	model := domain.New(natsClient, provider)
@@ -98,7 +97,6 @@ func main() {
 	// Root level middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
-	e.Use(errorshandler.HandleError)
 
-	e.Logger.Fatal(e.Start(Port))
+	e.Logger.Fatal(e.Start(config.AppConfig.ServicePort))
 }

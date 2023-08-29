@@ -15,36 +15,34 @@ import (
 type Repository struct {
 	client *redis.Client
 	next   domain.GoodsRepository
+	key    string
 }
 
-const (
-	Key = "CachedList"
-)
-
-func New(client *redis.Client, repo domain.GoodsRepository) *Repository {
+func New(client *redis.Client, repo domain.GoodsRepository, key string) *Repository {
 	return &Repository{
 		client: client,
 		next:   repo,
+		key:    key,
 	}
 }
 
 func (r *Repository) CreateItem(ctx context.Context, projectId int, name string) (*repository.GoodsItem, error) {
-	r.client.Del(ctx, Key)
+	r.client.Del(ctx, r.key)
 	return r.next.CreateItem(ctx, projectId, name)
 }
 
 func (r *Repository) GetItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error) {
-	r.client.Del(ctx, Key)
+	r.client.Del(ctx, r.key)
 	return r.next.GetItem(ctx, id, projectId)
 }
 
 func (r *Repository) UpdateItem(ctx context.Context, id int, projectId int, name string, description string) (*repository.GoodsItem, error) {
-	r.client.Del(ctx, Key)
+	r.client.Del(ctx, r.key)
 	return r.next.UpdateItem(ctx, id, projectId, name, description)
 }
 
 func (r *Repository) DeleteItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error) {
-	r.client.Del(ctx, Key)
+	r.client.Del(ctx, r.key)
 	return r.next.DeleteItem(ctx, id, projectId)
 }
 
@@ -68,7 +66,7 @@ func (r *Repository) ListItems(ctx context.Context, limit int, offset int) ([]re
 }
 
 func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsItem, error) {
-	r.client.Del(ctx, Key)
+	r.client.Del(ctx, r.key)
 	return r.next.Reprioritize(ctx, id, projectId, startPriority)
 }
 
@@ -79,11 +77,11 @@ func (r *Repository) setList(ctx context.Context, limit int, offset int, items [
 		return err
 	}
 
-	res, err := r.client.HSet(ctx, Key, r.getKeyField(limit, offset), data).Result()
+	res, err := r.client.HSet(ctx, r.key, r.getKeyField(limit, offset), data).Result()
 	logger.Log.Infof("Cache set request: %v %v", res, err)
 
 	if err != nil {
-		r.client.Expire(ctx, Key, time.Minute)
+		r.client.Expire(ctx, r.key, time.Minute)
 	}
 
 	return err
@@ -92,7 +90,7 @@ func (r *Repository) setList(ctx context.Context, limit int, offset int, items [
 func (r *Repository) getList(ctx context.Context, limit int, offset int) ([]repository.GoodsItem, error) {
 	var items []repository.GoodsItem
 
-	data, err := r.client.HGet(ctx, Key, r.getKeyField(limit, offset)).Result()
+	data, err := r.client.HGet(ctx, r.key, r.getKeyField(limit, offset)).Result()
 
 	if err != nil {
 		logger.Log.Infof("getList: missing cache: %w", err)

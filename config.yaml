@@ -1,0 +1,8 @@
+port: :8080
+postgresURL: postgres://user:password@postgresql:5432/example?sslmode=disable
+redis:
+  url: redis://default:@redis:6379/0
+  key: CachedList
+nats:
+  url: nats://nats:4222
+  subject: GoodsLogs

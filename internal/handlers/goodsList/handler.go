@@ -2,9 +2,9 @@ package goodslist
 
 import (
 	"context"
-	"errors"
 
 	"github.com/catinapoke/go-microservice-example/internal/domain"
+	"github.com/catinapoke/go-microservice-example/utils/serviceerrors"
 )
 
 type Handler struct {
@@ -28,17 +28,13 @@ type MetaResponse struct {
 	Offset  int `json:"offset"`  // от какой позиции выводить данные в списке
 }
 
-var (
-	ErrWrongInput = errors.New("wrong input")
-)
-
 func (r Request) Validate() error {
 	if r.Limit < 0 {
-		return ErrWrongInput
+		return serviceerrors.ErrValidation
 	}
 
 	if r.Offset < 0 {
-		return ErrWrongInput
+		return serviceerrors.ErrValidation
 	}
 
 	return nil

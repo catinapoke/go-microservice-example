@@ -2,7 +2,6 @@ package goodsremove
 
 import (
 	"context"
-	"errors"
 
 	"github.com/catinapoke/go-microservice-example/internal/domain"
 )
@@ -21,10 +20,6 @@ type Request struct {
 	Id        int `query:"id"`
 	ProjectId int `query:"projectId"`
 }
-
-var (
-	ErrWrongInput = errors.New("wrong input")
-)
 
 func (r Request) Validate() error {
 	return nil
