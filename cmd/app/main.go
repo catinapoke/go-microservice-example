@@ -11,6 +11,7 @@ import (
 	goodsremove "github.com/catinapoke/go-microservice-example/internal/handlers/goodsRemove"
 	goodsreprioritize "github.com/catinapoke/go-microservice-example/internal/handlers/goodsReprioritize"
 	goodsupdate "github.com/catinapoke/go-microservice-example/internal/handlers/goodsUpdate"
+	"github.com/catinapoke/go-microservice-example/internal/repository/natslogs"
 	"github.com/catinapoke/go-microservice-example/internal/repository/postgres"
 	"github.com/catinapoke/go-microservice-example/internal/repository/rediscache"
 	"github.com/catinapoke/go-microservice-example/utils/logger"
@@ -20,6 +21,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -27,6 +29,7 @@ const (
 	Port        = ":8080"
 	DatabaseUrl = "postgres://user:password@postgresql:5432/example?sslmode=disable"
 	RedisUrl    = "redis://default:@redis:6379/0"
+	NatsUrl     = "nats://nats:4222"
 )
 
 var (
@@ -63,8 +66,17 @@ func main() {
 
 	rds := rediscache.New(client, repo)
 
+	// Nats
+	conn, err := nats.Connect(NatsUrl)
+	if err != nil {
+		log.Fatal(fmt.Errorf("connect to nats: %w", err))
+	}
+	defer conn.Close()
+
+	natsClient := natslogs.New(conn, rds)
+
 	// Service
-	model := domain.New(rds)
+	model := domain.New(natsClient)
 
 	creator := goodscreate.Handler{Model: model}
 	updater := goodsupdate.Handler{Model: model}

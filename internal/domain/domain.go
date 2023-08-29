@@ -32,7 +32,7 @@ type GoodsRepository interface {
 	UpdateItem(ctx context.Context, id int, projectId int, name string, description string) (*repository.GoodsItem, error)
 	DeleteItem(ctx context.Context, id int, projectId int) (*repository.GoodsItem, error)
 	ListItems(ctx context.Context, limit int, offset int) ([]repository.GoodsItem, error)
-	Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsPriority, error)
+	Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsItem, error)
 }
 
 type Model struct {
@@ -55,7 +55,7 @@ func mapRepoItemToModel(x repository.GoodsItem) Item {
 	}
 }
 
-func mapRepoPriorityToModel(x repository.GoodsPriority) ItemPriority {
+func mapRepoPriorityToModel(x repository.GoodsItem) ItemPriority {
 	return ItemPriority{
 		Id:       x.Id,
 		Priority: x.Priority,

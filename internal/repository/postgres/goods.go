@@ -142,12 +142,12 @@ func (r *Repository) ListItems(ctx context.Context, limit int, offset int) ([]re
 	return result, nil
 }
 
-func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsPriority, error) {
+func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsItem, error) {
 	query := `
 	update goods
 	set priority = id - $1 + $3
 	where id >= $1 AND projectId = $2 AND priority != id - $1 + $3
-	RETURNING id, projectId, priority;
+	RETURNING id, projectId, name, description, priority, removed, created_at;
 	`
 
 	db := r.provider.GetDB(ctx)
@@ -158,13 +158,13 @@ func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, st
 		return nil, fmt.Errorf("reprioritize: sql query: %w", err)
 	}
 
-	var result []repository.GoodsPriority = make([]repository.GoodsPriority, 0)
+	var result []repository.GoodsItem = make([]repository.GoodsItem, 0)
 
 	for rows.Next() {
-		var priority repository.GoodsPriority
+		var priority repository.GoodsItem
 
 		if err := pgxscan.ScanRow(&priority, rows); err != nil {
-			return []repository.GoodsPriority{}, fmt.Errorf("reprioritize: query scan: %w", err)
+			return []repository.GoodsItem{}, fmt.Errorf("reprioritize: query scan: %w", err)
 		}
 
 		result = append(result, priority)

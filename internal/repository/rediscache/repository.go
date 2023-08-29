@@ -6,22 +6,22 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/catinapoke/go-microservice-example/internal/domain"
 	"github.com/catinapoke/go-microservice-example/internal/repository"
-	"github.com/catinapoke/go-microservice-example/internal/repository/postgres"
 	"github.com/catinapoke/go-microservice-example/utils/logger"
 	"github.com/redis/go-redis/v9"
 )
 
 type Repository struct {
 	client *redis.Client
-	next   *postgres.Repository
+	next   domain.GoodsRepository
 }
 
 const (
 	Key = "CachedList"
 )
 
-func New(client *redis.Client, repo *postgres.Repository) *Repository {
+func New(client *redis.Client, repo domain.GoodsRepository) *Repository {
 	return &Repository{
 		client: client,
 		next:   repo,
@@ -67,7 +67,7 @@ func (r *Repository) ListItems(ctx context.Context, limit int, offset int) ([]re
 	return items, nil
 }
 
-func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsPriority, error) {
+func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsItem, error) {
 	r.client.Del(ctx, Key)
 	return r.next.Reprioritize(ctx, id, projectId, startPriority)
 }

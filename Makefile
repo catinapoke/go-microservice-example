@@ -26,10 +26,13 @@ bin:
 GOOSE = PATH="$$PATH:$(LOCAL_BIN)" goose
 
 db-status: bin
-	cd migrations && $(GOOSE) postgres "postgresql://user:password@localhost:5432/example?sslmode=disable" status
+	cd migrations/postgres && $(GOOSE) postgres "postgresql://user:password@localhost:5432/example?sslmode=disable" status
+	cd migrations/clickhouse && $(GOOSE) clickhouse "tcp://clickuser:password1@localhost:9000/clickdb" status
 
 db-create: bin
-	cd migrations && $(GOOSE) postgres "postgresql://user:password@localhost:5432/example?sslmode=disable" up
+	cd migrations/postgres && $(GOOSE) postgres "postgresql://user:password@localhost:5432/example?sslmode=disable" up
+	cd migrations/clickhouse && $(GOOSE) clickhouse "tcp://clickuser:password1@localhost:9000/clickdb" up
 
 db-down: bin
-	cd migrations && $(GOOSE) postgres "postgresql://user:password@localhost:5432/example?sslmode=disable" down 0
+	cd migrations/postgres && $(GOOSE) postgres "postgresql://user:password@localhost:5432/example?sslmode=disable" down
+	cd migrations/clickhouse && $(GOOSE) clickhouse "tcp://clickuser:password1@localhost:9000/clickdb" down

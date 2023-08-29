@@ -122,8 +122,8 @@ func (r *Repository) ListItems(ctx context.Context, limit int, offset int) ([]re
 	return result, nil
 }
 
-func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsPriority, error) {
-	result := make([]repository.GoodsPriority, 0)
+func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, startPriority int) ([]repository.GoodsItem, error) {
+	result := make([]repository.GoodsItem, 0)
 
 	for _, item := range r.items {
 		if item.ProjectId != projectId {
@@ -137,11 +137,7 @@ func (r *Repository) Reprioritize(ctx context.Context, id int, projectId int, st
 
 		item.Priority = priority
 
-		result = append(result, repository.GoodsPriority{
-			Id:        item.Id,
-			ProjectId: item.ProjectId,
-			Priority:  item.Priority,
-		})
+		result = append(result, item)
 	}
 
 	return result, nil

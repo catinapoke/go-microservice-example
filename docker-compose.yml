@@ -2,6 +2,10 @@ version: "3.1"
 networks:
   c-net:
     driver: bridge
+  r-net:
+    driver: bridge
+  l-net:
+    driver: bridge
 
 services:
   goods:
@@ -11,9 +15,13 @@ services:
       - "8080:8080"
     networks:
       - c-net
+      - r-net
+      - l-net
     depends_on:
       - postgresql
       - redis
+      - nats
+    restart: unless-stopped
 
   postgresql:
     image: postgres:15.1
@@ -48,4 +56,34 @@ services:
       - 6379:6379
     restart: unless-stopped
     networks:
-      - c-net
+      - r-net
+
+  nats:
+    image: nats:2.9.21
+    ports:
+      - 4222:4222
+      - 6222:6222
+      - 8222:8222
+    networks:
+      - l-net
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:22.8-alpine
+    environment:
+      CLICKHOUSE_DB: clickdb
+      CLICKHOUSE_USER: clickuser
+      CLICKHOUSE_PASSWORD: password1
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+    - "8123:8123"
+    - "9000:9000"
+    - "9009:9009"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 262144
+        hard: 262144
+    depends_on:
+      - nats
+    networks:
+      - l-net
