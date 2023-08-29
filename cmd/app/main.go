@@ -12,17 +12,25 @@ import (
 	goodsreprioritize "github.com/catinapoke/go-microservice-example/internal/handlers/goodsReprioritize"
 	goodsupdate "github.com/catinapoke/go-microservice-example/internal/handlers/goodsUpdate"
 	"github.com/catinapoke/go-microservice-example/internal/repository/postgres"
+	"github.com/catinapoke/go-microservice-example/internal/repository/rediscache"
+	"github.com/catinapoke/go-microservice-example/utils/logger"
 	srvwrapper "github.com/catinapoke/go-microservice-example/utils/srwwrapper"
 	"github.com/catinapoke/go-microservice-example/utils/tx"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
 	Port        = ":8080"
 	DatabaseUrl = "postgres://user:password@postgresql:5432/example?sslmode=disable"
+	RedisUrl    = "redis://default:@redis:6379/0"
+)
+
+var (
+	Log echo.Logger
 )
 
 func main() {
@@ -38,9 +46,25 @@ func main() {
 	provider := tx.New(pool)
 	repo := postgres.New(provider)
 
+	// Redis
+	opt, err := redis.ParseURL(RedisUrl)
+	if err != nil {
+		log.Fatal(fmt.Errorf("connect to redis: %w", err))
+	}
+
+	client := redis.NewClient(opt)
+	defer client.Close()
+
+	_, err = client.Ping(ctx).Result()
+
+	if err != nil {
+		log.Fatal(fmt.Errorf("ping redis: %w", err))
+	}
+
+	rds := rediscache.New(client, repo)
+
 	// Service
-	// repo := localgoods.New()
-	model := domain.New(repo)
+	model := domain.New(rds)
 
 	creator := goodscreate.Handler{Model: model}
 	updater := goodsupdate.Handler{Model: model}
@@ -51,6 +75,7 @@ func main() {
 	e := echo.New()
 
 	e.Logger.SetLevel(log.INFO)
+	logger.Log = e.Logger
 
 	e.POST("/good/create", srvwrapper.New(creator.Handle).ServeHTTP)
 	e.PATCH("/good/update", srvwrapper.New(updater.Handle).ServeHTTP)
