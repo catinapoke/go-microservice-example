@@ -1,7 +1,7 @@
 CURDIR=$(shell pwd)
 BINDIR=${CURDIR}/bin
 GOVER=$(shell go version | perl -nle '/(go\d\S+)/; print $$1;')
-PACKAGE=/cmd/app
+PACKAGE=${CURDIR}/cmd/app
 
 all: build test
 
@@ -11,8 +11,13 @@ build: bindir
 test:
 	go test ./...
 
-run:
+run-package:
 	go run ${PACKAGE}
+run: build
+	docker compose up --force-recreate --build --remove-orphans
+
+bindir:
+	mkdir -p ${BINDIR}
 
 LOCAL_BIN:=$(CURDIR)/bin
 bin:

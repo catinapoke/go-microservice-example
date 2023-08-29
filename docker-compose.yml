@@ -21,7 +21,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       PGDATA: "/var/lib/postgresql/data/pgdata"
-    container_name: 'pg_checkout'
+    container_name: 'postgresql'
     volumes:
       - ./pg_data:/var/lib/postgresql/data
     ports:

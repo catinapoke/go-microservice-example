@@ -36,14 +36,14 @@ func (r *Repository) CreateItem(ctx context.Context, projectId int, name string)
 		)
 		insert INTO goods(id, projectId, name, priority)
 		select max(id) + 1, $1, $2, max(priority) + 1  from items
-		returning *;
+		returning id, projectId, name, description, priority, removed, created_at;
 	`
 
 	db := r.provider.GetDB(ctx)
 	row := db.QueryRow(ctx, query, projectId, name)
 
 	var result repository.GoodsItem
-	err := row.Scan(&result)
+	err := row.Scan(&result.Id, &result.ProjectId, &result.Name, &result.Description, &result.Priority, &result.Removed, &result.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("create: query row scan: %w", err)
 	}
@@ -62,7 +62,7 @@ func (r *Repository) GetItem(ctx context.Context, id int, projectId int) (*repos
 	row := db.QueryRow(ctx, query, id, projectId)
 
 	var result repository.GoodsItem
-	err := row.Scan(&result)
+	err := row.Scan(&result.Id, &result.ProjectId, &result.Name, &result.Description, &result.Priority, &result.Removed, &result.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get: query row scan: %w", err)
 	}
@@ -75,14 +75,14 @@ func (r *Repository) UpdateItem(ctx context.Context, id int, projectId int, name
 	update goods
 	set name = $3, description = $4
 	where id = $1 AND projectId = $2
-	RETURNING *;
+	RETURNING id, projectId, name, description, priority, removed, created_at;
 	`
 
 	db := r.provider.GetDB(ctx)
 	row := db.QueryRow(ctx, query, id, projectId, name, description)
 
 	var result repository.GoodsItem
-	err := row.Scan(&result)
+	err := row.Scan(&result.Id, &result.ProjectId, &result.Name, &result.Description, &result.Priority, &result.Removed, &result.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("update: query row scan: %w", err)
 	}
@@ -95,14 +95,14 @@ func (r *Repository) DeleteItem(ctx context.Context, id int, projectId int) (*re
 	update goods
 	set removed = true
 	where id = $1 AND projectId = $2
-	RETURNING *;
+	RETURNING id, projectId, name, description, priority, removed, created_at;
 	`
 
 	db := r.provider.GetDB(ctx)
 	row := db.QueryRow(ctx, query, id, projectId)
 
 	var result repository.GoodsItem
-	err := row.Scan(&result)
+	err := row.Scan(&result.Id, &result.ProjectId, &result.Name, &result.Description, &result.Priority, &result.Removed, &result.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("delete: query row scan: %w", err)
 	}

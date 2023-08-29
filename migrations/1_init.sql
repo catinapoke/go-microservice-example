@@ -2,19 +2,19 @@
 -- +goose StatementBegin
 CREATE TABLE Projects (
   	id serial,
-	name text,
-	created_at timestamp,
+	name text NOT NULL,
+	created_at timestamp DEFAULT NOW(),
   	primary key (id)
 );
 
 CREATE TABLE Goods (
   	id integer,
   	projectId integer,
-	name text,
-  	description text,
-  	priority integer,
-  	removed boolean,
-	created_at timestamp,
+	name text NOT NULL,
+  	description text DEFAULT '',
+  	priority integer DEFAULT 1,
+  	removed boolean DEFAULT false,
+	created_at timestamp DEFAULT NOW(),
   	primary key (id, projectId)
 );
 
